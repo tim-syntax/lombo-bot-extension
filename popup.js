@@ -1,5 +1,5 @@
-// Import constants from shared file
-import { BET_SEQUENCE, PAYOUT_SEQUENCE } from './constants.js';
+// Get constants from global object (loaded via constants.js)
+const { BET_SEQUENCE, PAYOUT_SEQUENCE } = window.LimboBotConstants || {};
 
 // DOM Elements
 const statusIndicator = document.getElementById('statusIndicator');

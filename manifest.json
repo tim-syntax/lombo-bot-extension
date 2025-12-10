@@ -12,7 +12,7 @@
   "content_scripts": [
     {
       "matches": ["https://bc.game/game/limbo*"],
-      "js": ["content.js"],
+      "js": ["constants.js", "content.js"],
       "css": ["content.css"]
     }
   ]

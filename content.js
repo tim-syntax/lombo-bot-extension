@@ -1,10 +1,10 @@
 // BC.Game Limbo Bot - Content Script
 
-// Import constants from shared file
-import { BET_SEQUENCE, PAYOUT_SEQUENCE, WIN_THRESHOLD } from './constants.js';
-
 (function() {
   'use strict';
+
+  // Get constants from global object (loaded via constants.js)
+  const { BET_SEQUENCE, PAYOUT_SEQUENCE, WIN_THRESHOLD } = self.LimboBotConstants || window.LimboBotConstants || {};
   
   // Bot state
   let state = {
@@ -579,7 +579,7 @@ import { BET_SEQUENCE, PAYOUT_SEQUENCE, WIN_THRESHOLD } from './constants.js';
       const button = findBetButton();
       console.log('[Limbo Bot] Amount input found:', !!input);
       console.log('[Limbo Bot] Bet button found:', !!button);
-    }, 2000);
+    }, 1000);
   });
 })();
 
