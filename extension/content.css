@@ -1,0 +1,25 @@
+/* Limbo Bot Indicator Styles */
+#limbo-bot-indicator {
+  transition: all 0.3s ease;
+}
+
+#limbo-bot-indicator:hover {
+  transform: scale(1.05);
+}
+
+/* Highlight active elements when bot is finding them */
+.limbo-bot-highlight {
+  outline: 2px solid #7c3aed !important;
+  outline-offset: 2px;
+  animation: botHighlight 1s ease infinite;
+}
+
+@keyframes botHighlight {
+  0%, 100% {
+    outline-color: #7c3aed;
+  }
+  50% {
+    outline-color: #00d4ff;
+  }
+}
+

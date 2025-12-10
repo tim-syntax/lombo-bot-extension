@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Limbo Bot</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="container">
+    <h1>🚀 Limbo Bot</h1>
+    
+    <div class="status-section">
+      <div class="status-indicator" id="statusIndicator"></div>
+      <span id="statusText">Stopped</span>
+    </div>
+
+    <div class="stats-section">
+      <div class="stat">
+        <span class="stat-label">Current Step</span>
+        <span class="stat-value" id="currentStep">1</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Wins</span>
+        <span class="stat-value win" id="wins">0</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Losses</span>
+        <span class="stat-value lose" id="losses">0</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Next Bet</span>
+        <span class="stat-value" id="nextBet">$0.1</span>
+      </div>
+      <div class="stat full-width">
+        <span class="stat-label">Total Profit</span>
+        <span class="stat-value" id="profit">$0.00</span>
+      </div>
+    </div>
+    
+    <div class="info-box">
+      <span>Win condition: Result ≥ 2.0x</span>
+    </div>
+
+    <div class="bet-sequence">
+      <span class="label">Bet Sequence:</span>
+      <div class="sequence">
+        <span class="step" data-step="1">0.01</span>
+        <span class="step" data-step="2">0.01</span>
+        <span class="step" data-step="3">0.01</span>
+        <span class="step" data-step="4">0.04</span>
+        <span class="step" data-step="5">0.1</span>
+        <span class="step" data-step="6">0.2</span>
+        <span class="step" data-step="7">0.4</span>
+        <span class="step" data-step="8">1</span>
+        <span class="step" data-step="9">2</span>
+        <span class="step" data-step="10">4</span>
+        <span class="step" data-step="11">10</span>
+        <span class="step" data-step="12">20</span>
+        <span class="step" data-step="13">40</span>
+      </div>
+    </div>
+
+    <div class="settings-section">
+      <div class="test-mode-toggle">
+        <label class="toggle-label">
+          <input type="checkbox" id="testMode">
+          <span class="toggle-text">🧪 Test Mode (bet $0.01 only)</span>
+        </label>
+      </div>
+      <label for="betDelay">Delay between bets (ms):</label>
+      <input type="number" id="betDelay" value="2000" min="1000" max="10000" step="500">
+    </div>
+
+    <div class="controls">
+      <button id="startBtn" class="btn btn-start">▶ Start</button>
+      <button id="stopBtn" class="btn btn-stop" disabled>⏹ Stop</button>
+      <button id="resetBtn" class="btn btn-reset">↺ Reset</button>
+    </div>
+
+    <div class="log-section">
+      <span class="label">Activity Log:</span>
+      <div id="logContainer" class="log-container"></div>
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
+

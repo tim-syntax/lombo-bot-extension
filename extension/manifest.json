@@ -1,0 +1,20 @@
+{
+  "manifest_version": 3,
+  "name": "BC.Game Limbo Bot",
+  "version": "1.0.0",
+  "description": "Automated betting bot for BC.Game Limbo",
+  "permissions": ["activeTab", "storage"],
+  "host_permissions": ["https://bc.game/*"],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Limbo Bot"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://bc.game/game/limbo*"],
+      "js": ["content.js"],
+      "css": ["content.css"]
+    }
+  ]
+}
+
