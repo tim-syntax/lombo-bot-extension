@@ -1,16 +1,10 @@
 // BC.Game Limbo Bot - Content Script
 
+// Import constants from shared file
+import { BET_SEQUENCE, PAYOUT_SEQUENCE, WIN_THRESHOLD } from './constants.js';
+
 (function() {
   'use strict';
-
-  // Bet sequence: 13 steps with progressive amounts
-  const BET_SEQUENCE = [0.01, 0.01, 0.01, 0.04, 0.1, 0.2, 0.4, 1, 2, 4, 10, 20, 40];
-
-  // Payout sequence: all steps = 2
-  const PAYOUT_SEQUENCE = [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2];
-  
-  // Win threshold - result >= 2.0 is a win
-  const WIN_THRESHOLD = 2.0;
   
   // Bot state
   let state = {

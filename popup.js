@@ -1,6 +1,5 @@
-// Bet amounts for each step
-const BET_SEQUENCE = [0.01, 0.01, 0.01, 0.04, 0.1, 0.2, 0.4, 1, 2, 4, 10, 20, 40];
-const PAYOUT_SEQUENCE = [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2];
+// Import constants from shared file
+import { BET_SEQUENCE, PAYOUT_SEQUENCE } from './constants.js';
 
 // DOM Elements
 const statusIndicator = document.getElementById('statusIndicator');
