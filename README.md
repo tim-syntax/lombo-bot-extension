@@ -45,7 +45,7 @@ An automated betting bot for BC.Game Limbo that follows a progressive betting st
 ## Usage
 
 1. Click the extension icon in Chrome toolbar
-2. Adjust the **delay between bets** if needed (default: 2000ms)
+2. Adjust the **delay between bets** if needed (default: 1000ms)
 3. Click **▶ Start** to begin automated betting
 4. Click **⏹ Stop** to pause the bot
 5. Click **↺ Reset** to reset statistics and go back to Step 1

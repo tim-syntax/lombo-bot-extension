@@ -103,7 +103,7 @@ async function sendToContent(action, data = {}) {
 
 // Start bot
 startBtn.addEventListener('click', async () => {
-  const betDelay = parseInt(betDelayInput.value) || 2000;
+  const betDelay = parseInt(betDelayInput.value) || 1000;
   const testMode = testModeCheckbox.checked;
   await chrome.storage.local.set({ betDelay, testMode });
   

@@ -12,7 +12,7 @@ import { BET_SEQUENCE, PAYOUT_SEQUENCE, WIN_THRESHOLD } from './constants.js';
     currentStep: 1,
     wins: 0,
     losses: 0,
-    betDelay: 2000,
+    betDelay: 1000,
     lastResultValue: null,
     totalProfit: 0,
     testMode: false
@@ -405,7 +405,7 @@ import { BET_SEQUENCE, PAYOUT_SEQUENCE, WIN_THRESHOLD } from './constants.js';
   }
 
   // Start the bot
-  function startBot(betDelay = 2000, testMode = false) {
+  function startBot(betDelay = 1000, testMode = false) {
     if (state.isRunning) return;
     
     state.isRunning = true;
@@ -482,7 +482,7 @@ import { BET_SEQUENCE, PAYOUT_SEQUENCE, WIN_THRESHOLD } from './constants.js';
   chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     switch (message.action) {
       case 'start':
-        startBot(message.betDelay || 2000, message.testMode || false);
+        startBot(message.betDelay || 1000, message.testMode || false);
         sendResponse({ success: true });
         break;
       case 'stop':
