@@ -5,26 +5,26 @@ An automated betting bot for BC.Game Limbo that follows a progressive betting st
 ## Betting Strategy
 
 | Step | Bet Amount | Payout | On Win | On Lose |
-|------|------------|--------|--------|---------|
+| ---- | ---------- | ------ | ------ | ------- |
 | 1    | 0.01       | 2x     | Step 1 | Step 2  |
-| 2    | 0.01       | 2x     | Step 1 | Step 3  |
-| 3    | 0.01       | 2x     | Step 1 | Step 4  |
-| 4    | 0.04       | 2x     | Step 1 | Step 5  |
-| 5    | 0.1        | 2x     | Step 1 | Step 6  |
-| 6    | 0.2        | 2x     | Step 1 | Step 7  |
-| 7    | 0.4        | 2x     | Step 1 | Step 8  |
-| 8    | 1          | 2x     | Step 1 | Step 9  |
-| 9    | 2          | 2x     | Step 1 | Step 10 |
-| 10   | 4          | 2x     | Step 1 | Step 11 |
-| 11   | 10         | 2x     | Step 1 | Step 12 |
-| 12   | 20         | 2x     | Step 1 | Step 13 |
-| 13   | 40         | 2x     | Step 1 | Step 1  |
+| 2    | 0.02       | 2x     | Step 1 | Step 3  |
+| 3    | 0.04       | 2x     | Step 1 | Step 4  |
+| 4    | 0.1        | 2x     | Step 1 | Step 5  |
+| 5    | 0.2        | 2x     | Step 1 | Step 6  |
+| 6    | 0.4        | 2x     | Step 1 | Step 7  |
+| 7    | 1          | 2x     | Step 1 | Step 8  |
+| 8    | 2          | 2x     | Step 1 | Step 9  |
+| 9    | 4          | 2x     | Step 1 | Step 10 |
+| 10   | 10         | 2x     | Step 1 | Step 11 |
+| 11   | 20         | 2x     | Step 1 | Step 12 |
+| 12   | 40         | 2x     | Step 1 | Step 1  |
 
 ## Installation
 
 1. **Download/Clone** this extension folder
 
 2. **Add Icons** (Required):
+
    - Create/add PNG icons in the `icons/` folder:
      - `icon16.png` (16x16 pixels)
      - `icon48.png` (48x48 pixels)
@@ -32,6 +32,7 @@ An automated betting bot for BC.Game Limbo that follows a progressive betting st
    - You can use any rocket/bot emoji or create simple icons
 
 3. **Load in Chrome**:
+
    - Open Chrome and go to `chrome://extensions/`
    - Enable **Developer mode** (toggle in top right)
    - Click **Load unpacked**
@@ -78,12 +79,14 @@ The bot reads the multiplier value from the result display and compares it to 2.
 ## Troubleshooting
 
 **Bot can't find elements:**
+
 1. Open browser DevTools (F12)
 2. Check console for messages starting with `[Limbo Bot]`
 3. Inspect the bet input field and bet button
 4. Update selectors in `content.js` under `SELECTORS` object
 
 **Bot not detecting win/lose:**
+
 - Result detection is based on the multiplier value (≥2.0x = win)
 - Ensure the page is fully loaded before starting the bot
 
@@ -107,4 +110,3 @@ bcg/
 ## License
 
 For personal use only. Use responsibly.
-
