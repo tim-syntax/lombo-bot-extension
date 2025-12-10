@@ -392,6 +392,11 @@ import { BET_SEQUENCE, PAYOUT_SEQUENCE, WIN_THRESHOLD } from './constants.js';
       
       await saveState();
       
+      // Check profit thresholds and auto reset/restart if needed
+      if (checkProfitThresholds()) {
+        return; // Exit early if auto-reset was triggered
+      }
+      
     } catch (error) {
       log(`🔥 Error: ${error.message}`, 'lose');
     } finally {
@@ -444,6 +449,33 @@ import { BET_SEQUENCE, PAYOUT_SEQUENCE, WIN_THRESHOLD } from './constants.js';
     lastKnownResult = null;
     saveState();
     log('🔄 Stats reset! Starting fresh.', 'info');
+  }
+
+  // Check profit thresholds and auto reset/restart if needed
+  function checkProfitThresholds() {
+    if (state.totalProfit > 1 || state.totalProfit < -1) {
+      const reason = state.totalProfit > 1 ? 'profit exceeded +$1.00' : 'loss exceeded -$1.00';
+      log(`💰 Auto-reset triggered: ${reason} ($${state.totalProfit.toFixed(2)})`, 'info');
+      
+      // Save current settings before stopping
+      const savedBetDelay = state.betDelay;
+      const savedTestMode = state.testMode;
+      
+      // Stop the bot
+      stopBot();
+      
+      // Reset stats
+      resetStats();
+      
+      // Small delay before restarting
+      setTimeout(() => {
+        log('🔄 Auto-restarting bot after reset...', 'info');
+        startBot(savedBetDelay, savedTestMode);
+      }, 1000);
+      
+      return true; // Indicates auto-reset was triggered
+    }
+    return false;
   }
 
   // Listen for messages from popup
