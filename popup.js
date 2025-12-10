@@ -17,12 +17,16 @@ const resetBtn = document.getElementById('resetBtn');
 const logContainer = document.getElementById('logContainer');
 const stepElements = document.querySelectorAll('.step');
 
+// Log cache to store all log entries
+let logCache = [];
+
 // Load saved state
 async function loadState() {
   const result = await chrome.storage.local.get(['botState', 'betDelay', 'testMode']);
   
   if (result.botState) {
     updateUI(result.botState);
+    previousIsRunning = result.botState.isRunning || false;
   }
   
   if (result.betDelay) {
@@ -72,15 +76,84 @@ function updateUI(state) {
 
 // Add log entry
 function addLog(message, type = 'info') {
+  const timestamp = new Date();
+  const timeString = timestamp.toLocaleTimeString();
+  const dateString = timestamp.toLocaleDateString();
+  
+  // Create log entry object for cache
+  const logEntry = {
+    timestamp: timestamp.toISOString(),
+    date: dateString,
+    time: timeString,
+    message: message,
+    type: type
+  };
+  
+  // Add to cache
+  logCache.push(logEntry);
+  
+  // Display in UI
   const entry = document.createElement('div');
   entry.className = `log-entry ${type}`;
-  entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+  entry.textContent = `[${timeString}] ${message}`;
   logContainer.insertBefore(entry, logContainer.firstChild);
   
-  // Keep only last 50 entries
+  // Keep only last 50 entries in UI
   while (logContainer.children.length > 50) {
     logContainer.removeChild(logContainer.lastChild);
   }
+}
+
+// Save logs to file
+async function saveLogsToFile() {
+  if (logCache.length === 0) {
+    return;
+  }
+  
+  try {
+    // Create filename with timestamp
+    const now = new Date();
+    const dateStr = now.toISOString().replace(/[:.]/g, '-').slice(0, -5); // Format: 2024-01-15T10-30-45
+    const filename = `limbo-bot-log-${dateStr}.txt`;
+    
+    // Format log content
+    let logContent = `BC.Game Limbo Bot - Activity Log\n`;
+    logContent += `Generated: ${now.toLocaleString()}\n`;
+    logContent += `Total Entries: ${logCache.length}\n`;
+    logContent += `${'='.repeat(60)}\n\n`;
+    
+    // Add all log entries (oldest first)
+    logCache.forEach(entry => {
+      const typeLabel = entry.type.toUpperCase().padEnd(6);
+      logContent += `[${entry.date} ${entry.time}] [${typeLabel}] ${entry.message}\n`;
+    });
+    
+    logContent += `\n${'='.repeat(60)}\n`;
+    logContent += `End of Log\n`;
+    
+    // Create blob and download
+    const blob = new Blob([logContent], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    
+    await chrome.downloads.download({
+      url: url,
+      filename: filename,
+      saveAs: false
+    });
+    
+    // Clean up
+    URL.revokeObjectURL(url);
+    
+    addLog(`📄 Log file saved: ${filename}`, 'info');
+  } catch (error) {
+    console.error('Error saving log file:', error);
+    addLog('❌ Failed to save log file', 'lose');
+  }
+}
+
+// Clear log cache (called on reset)
+function clearLogCache() {
+  logCache = [];
 }
 
 // Send message to content script
@@ -128,6 +201,9 @@ stopBtn.addEventListener('click', async () => {
     stopBtn.disabled = true;
     statusIndicator.classList.remove('running');
     statusText.textContent = 'Stopped';
+    
+    // Save logs to file when bot stops
+    await saveLogsToFile();
   }
 });
 
@@ -146,13 +222,28 @@ resetBtn.addEventListener('click', async () => {
     stepElements.forEach((el, index) => {
       el.classList.toggle('active', index === 0);
     });
+    
+    // Clear log cache on reset
+    clearLogCache();
   }
 });
 
+// Track previous running state to detect when bot stops
+let previousIsRunning = false;
+
 // Listen for state updates from content script
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+chrome.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
   if (message.type === 'stateUpdate') {
+    const wasRunning = previousIsRunning;
+    const isRunning = message.state.isRunning;
+    previousIsRunning = isRunning;
+    
     updateUI(message.state);
+    
+    // If bot was running and now stopped, save logs
+    if (wasRunning && !isRunning) {
+      await saveLogsToFile();
+    }
   } else if (message.type === 'log') {
     addLog(message.message, message.logType);
   }

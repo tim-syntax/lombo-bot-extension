@@ -3,7 +3,7 @@
   "name": "BC.Game Limbo Bot",
   "version": "1.0.0",
   "description": "Automated betting bot for BC.Game Limbo",
-  "permissions": ["activeTab", "storage"],
+  "permissions": ["activeTab", "storage", "downloads"],
   "host_permissions": ["https://bc.game/*"],
   "action": {
     "default_popup": "popup.html",
