@@ -3,7 +3,6 @@ const { BET_SEQUENCE, PAYOUT_SEQUENCE } = window.LimboBotConstants || {};
 
 // DOM Elements
 const statusIndicator = document.getElementById('statusIndicator');
-const statusText = document.getElementById('statusText');
 const currentStepEl = document.getElementById('currentStep');
 const winsEl = document.getElementById('wins');
 const lossesEl = document.getElementById('losses');
@@ -187,10 +186,9 @@ function updateUI(state) {
   winsEl.textContent = state.wins;
   lossesEl.textContent = state.losses;
   
-  // Show next bet and payout
+  // Show next bet (amount only)
   const nextBet = BET_SEQUENCE[state.currentStep - 1];
-  const nextPayout = PAYOUT_SEQUENCE[state.currentStep - 1];
-  nextBetEl.textContent = '$' + nextBet + ' @ ' + nextPayout + 'x';
+  nextBetEl.textContent = '$' + nextBet;
   
   // Update profit display
   const profit = state.totalProfit || 0;
@@ -209,12 +207,10 @@ function updateUI(state) {
   // Update running status
   if (state.isRunning) {
     statusIndicator.classList.add('running');
-    statusText.textContent = 'Running';
     startBtn.disabled = true;
     stopBtn.disabled = false;
   } else {
     statusIndicator.classList.remove('running');
-    statusText.textContent = 'Stopped';
     startBtn.disabled = false;
     stopBtn.disabled = true;
   }
@@ -327,7 +323,6 @@ startBtn.addEventListener('click', async () => {
     startBtn.disabled = true;
     stopBtn.disabled = false;
     statusIndicator.classList.add('running');
-    statusText.textContent = 'Running';
   }
 });
 
@@ -340,7 +335,6 @@ stopBtn.addEventListener('click', async () => {
     startBtn.disabled = false;
     stopBtn.disabled = true;
     statusIndicator.classList.remove('running');
-    statusText.textContent = 'Stopped';
   }
 });
 
@@ -353,7 +347,7 @@ resetBtn.addEventListener('click', async () => {
     currentStepEl.textContent = '1';
     winsEl.textContent = '0';
     lossesEl.textContent = '0';
-    nextBetEl.textContent = '$0.01 @ 2x';
+    nextBetEl.textContent = '$0.01';
     profitEl.textContent = '$0.00';
     profitEl.className = 'stat-value';
     stepElements.forEach((el, index) => {
