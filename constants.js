@@ -11,12 +11,18 @@
   // Win threshold - result >= 2.0 is a win
   const WIN_THRESHOLD = 2.0;
 
+  // Profit/Loss thresholds for auto-reset
+  const PROFIT_THRESHOLD = 0.26;  // Auto-reset when profit exceeds this value
+  const LOSS_THRESHOLD = 0.09;    // Auto-reset when loss exceeds this value (negative)
+
   // Export to global object for Chrome extension compatibility
   const globalObj = typeof window !== 'undefined' ? window : (typeof self !== 'undefined' ? self : globalThis);
   globalObj.LimboBotConstants = {
     BET_SEQUENCE,
     PAYOUT_SEQUENCE,
-    WIN_THRESHOLD
+    WIN_THRESHOLD,
+    PROFIT_THRESHOLD,
+    LOSS_THRESHOLD
   };
 })();
 

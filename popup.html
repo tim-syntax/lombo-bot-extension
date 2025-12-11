@@ -8,12 +8,10 @@
 </head>
 <body>
   <div class="container">
-    <h1>🚀 Limbo Bot</h1>
-    
-    <div class="status-section">
-      <div class="status-indicator" id="statusIndicator"></div>
-      <span id="statusText">Stopped</span>
-    </div>
+    <h1>
+      <span class="status-indicator" id="statusIndicator"></span>
+      🚀 Limbo Bot
+    </h1>
 
     <div class="stats-section">
       <div class="stat">
@@ -32,14 +30,25 @@
         <span class="stat-label">Next Bet</span>
         <span class="stat-value" id="nextBet">$0.1</span>
       </div>
-      <div class="stat full-width">
+    </div>
+
+    <div class="chart-section">
+      <div class="chart-header">
+        <span class="label">Balance History</span>
+        <button id="cycleResetBtn" class="btn-cycle-reset">↺ Cycle Reset</button>
+      </div>
+      <canvas id="balanceChart"></canvas>
+    </div>
+
+    <div class="profit-panel">
+      <div class="profit-item">
         <span class="stat-label">Total Profit</span>
         <span class="stat-value" id="profit">$0.00</span>
       </div>
-    </div>
-    
-    <div class="info-box">
-      <span>Win condition: Result ≥ 2.0x</span>
+      <div class="profit-item">
+        <span class="stat-label">Total Delta</span>
+        <span class="stat-value" id="totalDelta">$0.00</span>
+      </div>
     </div>
 
     <div class="bet-sequence">
@@ -61,12 +70,6 @@
     </div>
 
     <div class="settings-section">
-      <div class="test-mode-toggle">
-        <label class="toggle-label">
-          <input type="checkbox" id="testMode">
-          <span class="toggle-text">🧪 Test Mode (bet $0.01 only)</span>
-        </label>
-      </div>
       <label for="betDelay">Delay between bets (ms):</label>
       <input type="number" id="betDelay" value="1000" min="1000" max="10000" step="500">
     </div>
@@ -77,9 +80,8 @@
       <button id="resetBtn" class="btn btn-reset">↺ Reset</button>
     </div>
 
-    <div class="log-section">
-      <span class="label">Activity Log:</span>
-      <div id="logContainer" class="log-container"></div>
+    <div class="export-section">
+      <button id="exportLogBtn" class="btn btn-export">📄 Export Log</button>
     </div>
   </div>
 
