@@ -341,7 +341,7 @@
       
       // Get current bet amount and payout based on step (or 0.01 in test mode)
       const stepIndex = state.currentStep - 1;
-      const betAmount = state.testMode ? 0.01 : BET_SEQUENCE[stepIndex];
+      const betAmount = state.testMode ? 0.1 : BET_SEQUENCE[stepIndex];
       const payout = PAYOUT_SEQUENCE[stepIndex];
       
       log(`📍 Step ${state.currentStep}: Betting $${betAmount} @ ${payout}x${state.testMode ? ' (TEST)' : ''}`, 'info');
@@ -599,7 +599,7 @@
       const profitSign = state.totalProfit >= 0 ? '+' : '';
       
       const safeStepIndex = Math.max(0, Math.min(state.currentStep - 1, BET_SEQUENCE.length - 1));
-      const nextBet = state.testMode ? 0.01 : BET_SEQUENCE[safeStepIndex];
+      const nextBet = state.testMode ? 0.1 : BET_SEQUENCE[safeStepIndex];
       const modeLabel = state.testMode ? '🧪 TEST MODE' : '🤖 RUNNING';
       
       if (state.isRunning) {
