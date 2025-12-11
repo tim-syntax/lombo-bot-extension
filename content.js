@@ -393,7 +393,7 @@
       await saveState();
       
       // Check profit thresholds and auto reset/restart if needed
-      if (checkProfitThresholds()) {
+      if (await checkProfitThresholds()) {
         return; // Exit early if auto-reset was triggered
       }
       
@@ -439,8 +439,59 @@
     log('Bot stopped!', 'info');
   }
 
+  // Load balance history
+  async function loadBalanceHistory() {
+    try {
+      const result = await chrome.storage.local.get(['balanceHistory']);
+      return result.balanceHistory || [];
+    } catch (e) {
+      console.log('Could not load balance history:', e);
+      return [];
+    }
+  }
+
+  // Save balance history
+  async function saveBalanceHistory(history) {
+    try {
+      await chrome.storage.local.set({ balanceHistory: history });
+    } catch (e) {
+      console.log('Could not save balance history:', e);
+    }
+  }
+
+  // Add balance point to history (cumulative)
+  async function addBalancePoint(profitDelta) {
+    const history = await loadBalanceHistory();
+    
+    // Calculate new cumulative balance
+    let currentBalance = 0;
+    if (history.length > 0) {
+      currentBalance = history[history.length - 1].balance;
+    }
+    const newBalance = currentBalance + profitDelta;
+    
+    history.push({
+      timestamp: Date.now(),
+      balance: newBalance
+    });
+    
+    // Keep only last 1000 points
+    if (history.length > 1000) {
+      history.shift();
+    }
+    await saveBalanceHistory(history);
+    // Notify popup of balance update
+    chrome.runtime.sendMessage({ type: 'balanceUpdate', history });
+  }
+
   // Reset stats
-  function resetStats() {
+  async function resetStats() {
+    // Record current profit as balance delta before reset
+    const profitDelta = state.totalProfit;
+    if (profitDelta !== 0) {
+      await addBalancePoint(profitDelta);
+    }
+    
     state.currentStep = 1;
     state.wins = 0;
     state.losses = 0;
@@ -452,7 +503,7 @@
   }
 
   // Check profit thresholds and auto reset/restart if needed
-  function checkProfitThresholds() {
+  async function checkProfitThresholds() {
     if (state.totalProfit > PROFIT_THRESHOLD || state.totalProfit < -LOSS_THRESHOLD) {
       const reason = state.totalProfit > PROFIT_THRESHOLD ? `profit exceeded +$${PROFIT_THRESHOLD}` : `loss exceeded -$${LOSS_THRESHOLD}`;
       log(`💰 Auto-reset triggered: ${reason} ($${state.totalProfit.toFixed(2)})`, 'info');
@@ -464,8 +515,8 @@
       // Stop the bot
       stopBot();
       
-      // Reset stats
-      resetStats();
+      // Reset stats (this will record the balance)
+      await resetStats();
       
       // Small delay before restarting
       setTimeout(() => {
@@ -490,9 +541,15 @@
         sendResponse({ success: true });
         break;
       case 'reset':
-        resetStats();
-        sendResponse({ success: true });
-        break;
+        resetStats().then(() => {
+          sendResponse({ success: true });
+        });
+        return true; // Keep channel open for async
+      case 'getBalanceHistory':
+        loadBalanceHistory().then(history => {
+          sendResponse({ success: true, history });
+        });
+        return true; // Keep channel open for async
       case 'getState':
         sendResponse({ success: true, state });
         break;

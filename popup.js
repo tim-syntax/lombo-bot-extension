@@ -13,11 +13,129 @@ const betDelayInput = document.getElementById('betDelay');
 const startBtn = document.getElementById('startBtn');
 const stopBtn = document.getElementById('stopBtn');
 const resetBtn = document.getElementById('resetBtn');
-const logContainer = document.getElementById('logContainer');
+const exportLogBtn = document.getElementById('exportLogBtn');
+const chartCanvas = document.getElementById('balanceChart');
 const stepElements = document.querySelectorAll('.step');
 
 // Log cache to store all log entries
 let logCache = [];
+let balanceHistory = [];
+let chartContext = null;
+
+// Initialize chart
+function initChart() {
+  if (!chartCanvas) return;
+  
+  chartContext = chartCanvas.getContext('2d');
+  
+  // Set canvas size
+  const updateCanvasSize = () => {
+    const rect = chartCanvas.getBoundingClientRect();
+    chartCanvas.width = rect.width;
+    chartCanvas.height = 200;
+    drawChart();
+  };
+  
+  updateCanvasSize();
+  
+  // Update on resize
+  window.addEventListener('resize', updateCanvasSize);
+}
+
+// Draw chart
+function drawChart() {
+  if (!chartContext || balanceHistory.length === 0) {
+    // Draw empty chart
+    chartContext.fillStyle = 'rgba(0, 0, 0, 0.2)';
+    chartContext.fillRect(0, 0, chartCanvas.width, chartCanvas.height);
+    chartContext.fillStyle = '#888';
+    chartContext.font = '12px sans-serif';
+    chartContext.textAlign = 'center';
+    chartContext.fillText('No balance data yet', chartCanvas.width / 2, chartCanvas.height / 2);
+    return;
+  }
+
+  const padding = 40;
+  const chartWidth = chartCanvas.width - padding * 2;
+  const chartHeight = chartCanvas.height - padding * 2;
+  
+  // Clear canvas
+  chartContext.clearRect(0, 0, chartCanvas.width, chartCanvas.height);
+  
+  // Find min/max for scaling
+  const balances = balanceHistory.map(h => h.balance);
+  const minBalance = Math.min(...balances);
+  const maxBalance = Math.max(...balances);
+  const range = maxBalance - minBalance || 1; // Avoid division by zero
+  
+  // Draw background
+  chartContext.fillStyle = 'rgba(0, 0, 0, 0.2)';
+  chartContext.fillRect(padding, padding, chartWidth, chartHeight);
+  
+  // Draw grid lines
+  chartContext.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+  chartContext.lineWidth = 1;
+  
+  // Horizontal grid lines
+  for (let i = 0; i <= 5; i++) {
+    const y = padding + (chartHeight / 5) * i;
+    chartContext.beginPath();
+    chartContext.moveTo(padding, y);
+    chartContext.lineTo(padding + chartWidth, y);
+    chartContext.stroke();
+    
+    // Y-axis labels
+    const value = maxBalance - (range / 5) * i;
+    chartContext.fillStyle = '#888';
+    chartContext.font = '10px sans-serif';
+    chartContext.textAlign = 'right';
+    chartContext.fillText(value.toFixed(2), padding - 8, y + 4);
+  }
+  
+  // Draw line
+  chartContext.strokeStyle = '#00d4ff';
+  chartContext.lineWidth = 2;
+  chartContext.beginPath();
+  
+  balanceHistory.forEach((point, index) => {
+    const x = padding + (chartWidth / (balanceHistory.length - 1 || 1)) * index;
+    const y = padding + chartHeight - ((point.balance - minBalance) / range) * chartHeight;
+    
+    if (index === 0) {
+      chartContext.moveTo(x, y);
+    } else {
+      chartContext.lineTo(x, y);
+    }
+  });
+  
+  chartContext.stroke();
+  
+  // Draw points
+  chartContext.fillStyle = '#00d4ff';
+  balanceHistory.forEach((point, index) => {
+    const x = padding + (chartWidth / (balanceHistory.length - 1 || 1)) * index;
+    const y = padding + chartHeight - ((point.balance - minBalance) / range) * chartHeight;
+    
+    chartContext.beginPath();
+    chartContext.arc(x, y, 3, 0, Math.PI * 2);
+    chartContext.fill();
+  });
+  
+  // Draw X-axis label
+  chartContext.fillStyle = '#888';
+  chartContext.font = '10px sans-serif';
+  chartContext.textAlign = 'center';
+  chartContext.fillText('Balance History', chartCanvas.width / 2, chartCanvas.height - 8);
+}
+
+// Load balance history
+async function loadBalanceHistory() {
+  const response = await sendToContent('getBalanceHistory');
+  if (response && response.success) {
+    balanceHistory = response.history || [];
+    drawChart();
+  }
+}
 
 // Load saved state
 async function loadState() {
@@ -31,6 +149,9 @@ async function loadState() {
   if (result.betDelay) {
     betDelayInput.value = result.betDelay;
   }
+  
+  // Load balance history
+  await loadBalanceHistory();
 }
 
 // Update UI with state
@@ -69,7 +190,7 @@ function updateUI(state) {
   }
 }
 
-// Add log entry
+// Add log entry (for export only, not displayed)
 function addLog(message, type = 'info') {
   const timestamp = new Date();
   const timeString = timestamp.toLocaleTimeString();
@@ -87,28 +208,23 @@ function addLog(message, type = 'info') {
   // Add to cache
   logCache.push(logEntry);
   
-  // Display in UI
-  const entry = document.createElement('div');
-  entry.className = `log-entry ${type}`;
-  entry.textContent = `[${timeString}] ${message}`;
-  logContainer.insertBefore(entry, logContainer.firstChild);
-  
-  // Keep only last 50 entries in UI
-  while (logContainer.children.length > 50) {
-    logContainer.removeChild(logContainer.lastChild);
+  // Keep only last 10000 entries
+  if (logCache.length > 10000) {
+    logCache.shift();
   }
 }
 
 // Save logs to file
 async function saveLogsToFile() {
   if (logCache.length === 0) {
+    alert('No logs to export');
     return;
   }
   
   try {
     // Create filename with timestamp
     const now = new Date();
-    const dateStr = now.toISOString().replace(/[:.]/g, '-').slice(0, -5); // Format: 2024-01-15T10-30-45
+    const dateStr = now.toISOString().replace(/[:.]/g, '-').slice(0, -5);
     const filename = `limbo-bot-log-${dateStr}.txt`;
     
     // Format log content
@@ -133,7 +249,7 @@ async function saveLogsToFile() {
     await chrome.downloads.download({
       url: url,
       filename: filename,
-      saveAs: false
+      saveAs: true
     });
     
     // Clean up
@@ -142,7 +258,7 @@ async function saveLogsToFile() {
     addLog(`📄 Log file saved: ${filename}`, 'info');
   } catch (error) {
     console.error('Error saving log file:', error);
-    addLog('❌ Failed to save log file', 'lose');
+    alert('Failed to save log file. Make sure downloads permission is granted.');
   }
 }
 
@@ -156,7 +272,7 @@ async function sendToContent(action, data = {}) {
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
   
   if (!tab || !tab.url.includes('bc.game/game/limbo')) {
-    addLog('Please navigate to BC.Game Limbo page!', 'lose');
+    console.log('Please navigate to BC.Game Limbo page!');
     return null;
   }
   
@@ -164,7 +280,7 @@ async function sendToContent(action, data = {}) {
     const response = await chrome.tabs.sendMessage(tab.id, { action, ...data });
     return response;
   } catch (error) {
-    addLog('Error communicating with page. Refresh the page.', 'lose');
+    console.log('Error communicating with page. Refresh the page.', error);
     return null;
   }
 }
@@ -195,9 +311,6 @@ stopBtn.addEventListener('click', async () => {
     stopBtn.disabled = true;
     statusIndicator.classList.remove('running');
     statusText.textContent = 'Stopped';
-    
-    // Save logs to file when bot stops
-    await saveLogsToFile();
   }
 });
 
@@ -217,9 +330,14 @@ resetBtn.addEventListener('click', async () => {
       el.classList.toggle('active', index === 0);
     });
     
-    // Clear log cache on reset
-    clearLogCache();
+    // Reload balance history to update chart
+    await loadBalanceHistory();
   }
+});
+
+// Export log button
+exportLogBtn.addEventListener('click', async () => {
+  await saveLogsToFile();
 });
 
 // Track previous running state to detect when bot stops
@@ -233,20 +351,19 @@ chrome.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
     previousIsRunning = isRunning;
     
     updateUI(message.state);
-    
-    // If bot was running and now stopped, save logs
-    if (wasRunning && !isRunning) {
-      await saveLogsToFile();
-    }
   } else if (message.type === 'log') {
     addLog(message.message, message.logType);
+  } else if (message.type === 'balanceUpdate') {
+    balanceHistory = message.history || [];
+    drawChart();
   }
   sendResponse({ received: true });
 });
 
+
 // Initialize
 loadState();
+initChart();
 
 // Highlight first step by default
 stepElements[0].classList.add('active');
-

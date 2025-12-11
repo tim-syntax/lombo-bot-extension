@@ -32,12 +32,17 @@
         <span class="stat-label">Next Bet</span>
         <span class="stat-value" id="nextBet">$0.1</span>
       </div>
-      <div class="stat full-width">
-        <span class="stat-label">Total Profit</span>
-        <span class="stat-value" id="profit">$0.00</span>
-      </div>
     </div>
-    
+
+    <div class="chart-section">
+      <canvas id="balanceChart"></canvas>
+    </div>
+
+    <div class="profit-panel">
+      <span class="stat-label">Total Profit</span>
+      <span class="stat-value" id="profit">$0.00</span>
+    </div>
+
     <div class="bet-sequence">
       <span class="label">Bet Sequence:</span>
       <div class="sequence">
@@ -67,9 +72,8 @@
       <button id="resetBtn" class="btn btn-reset">↺ Reset</button>
     </div>
 
-    <div class="log-section">
-      <span class="label">Activity Log:</span>
-      <div id="logContainer" class="log-container"></div>
+    <div class="export-section">
+      <button id="exportLogBtn" class="btn btn-export">📄 Export Log</button>
     </div>
   </div>
 
