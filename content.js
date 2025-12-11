@@ -4,7 +4,7 @@
   'use strict';
 
   // Get constants from global object (loaded via constants.js)
-  const { BET_SEQUENCE, PAYOUT_SEQUENCE, WIN_THRESHOLD } = self.LimboBotConstants || window.LimboBotConstants || {};
+  const { BET_SEQUENCE, PAYOUT_SEQUENCE, WIN_THRESHOLD, PROFIT_THRESHOLD, LOSS_THRESHOLD } = self.LimboBotConstants || window.LimboBotConstants || {};
   
   // Bot state
   let state = {
@@ -453,8 +453,8 @@
 
   // Check profit thresholds and auto reset/restart if needed
   function checkProfitThresholds() {
-    if (state.totalProfit > 1 || state.totalProfit < -1) {
-      const reason = state.totalProfit > 1 ? 'profit exceeded +$1.00' : 'loss exceeded -$1.00';
+    if (state.totalProfit > PROFIT_THRESHOLD || state.totalProfit < -LOSS_THRESHOLD) {
+      const reason = state.totalProfit > PROFIT_THRESHOLD ? `profit exceeded +$${PROFIT_THRESHOLD}` : `loss exceeded -$${LOSS_THRESHOLD}`;
       log(`💰 Auto-reset triggered: ${reason} ($${state.totalProfit.toFixed(2)})`, 'info');
       
       // Save current settings before stopping

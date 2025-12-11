@@ -9,7 +9,6 @@ const winsEl = document.getElementById('wins');
 const lossesEl = document.getElementById('losses');
 const nextBetEl = document.getElementById('nextBet');
 const profitEl = document.getElementById('profit');
-const testModeCheckbox = document.getElementById('testMode');
 const betDelayInput = document.getElementById('betDelay');
 const startBtn = document.getElementById('startBtn');
 const stopBtn = document.getElementById('stopBtn');
@@ -22,7 +21,7 @@ let logCache = [];
 
 // Load saved state
 async function loadState() {
-  const result = await chrome.storage.local.get(['botState', 'betDelay', 'testMode']);
+  const result = await chrome.storage.local.get(['botState', 'betDelay']);
   
   if (result.botState) {
     updateUI(result.botState);
@@ -32,10 +31,6 @@ async function loadState() {
   if (result.betDelay) {
     betDelayInput.value = result.betDelay;
   }
-  
-  if (result.testMode !== undefined) {
-    testModeCheckbox.checked = result.testMode;
-  }
 }
 
 // Update UI with state
@@ -44,8 +39,8 @@ function updateUI(state) {
   winsEl.textContent = state.wins;
   lossesEl.textContent = state.losses;
   
-  // Show next bet and payout (0.01 in test mode)
-  const nextBet = state.testMode ? 0.01 : BET_SEQUENCE[state.currentStep - 1];
+  // Show next bet and payout
+  const nextBet = BET_SEQUENCE[state.currentStep - 1];
   const nextPayout = PAYOUT_SEQUENCE[state.currentStep - 1];
   nextBetEl.textContent = '$' + nextBet + ' @ ' + nextPayout + 'x';
   
@@ -63,7 +58,7 @@ function updateUI(state) {
   // Update running status
   if (state.isRunning) {
     statusIndicator.classList.add('running');
-    statusText.textContent = state.testMode ? 'Testing' : 'Running';
+    statusText.textContent = 'Running';
     startBtn.disabled = true;
     stopBtn.disabled = false;
   } else {
@@ -177,17 +172,16 @@ async function sendToContent(action, data = {}) {
 // Start bot
 startBtn.addEventListener('click', async () => {
   const betDelay = parseInt(betDelayInput.value) || 1000;
-  const testMode = testModeCheckbox.checked;
-  await chrome.storage.local.set({ betDelay, testMode });
+  await chrome.storage.local.set({ betDelay });
   
-  const response = await sendToContent('start', { betDelay, testMode });
+  const response = await sendToContent('start', { betDelay, testMode: false });
   
   if (response && response.success) {
-    addLog(testMode ? '🧪 Bot started in TEST MODE ($0.01 only)' : 'Bot started!', 'info');
+    addLog('Bot started!', 'info');
     startBtn.disabled = true;
     stopBtn.disabled = false;
     statusIndicator.classList.add('running');
-    statusText.textContent = testMode ? 'Testing' : 'Running';
+    statusText.textContent = 'Running';
   }
 });
 
