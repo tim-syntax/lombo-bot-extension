@@ -3,7 +3,7 @@
   'use strict';
   
   // Bet amounts for each step
-  const BET_SEQUENCE = [0.01, 0.02, 0.04, 0.1, 0.2, 0.4, 1, 2, 4, 10, 20, 40];
+  const BET_SEQUENCE = [0, 0, 0, 0.01, 0.02, 0.07, 0.2, 0.4, 0.8, 2, 4, 8];
 
   // Payout sequence: all steps = 2
   const PAYOUT_SEQUENCE = [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2];
@@ -12,8 +12,8 @@
   const WIN_THRESHOLD = 2.0;
 
   // Profit/Loss thresholds for auto-reset
-  const PROFIT_THRESHOLD = 0.26;  // Auto-reset when profit exceeds this value
-  const LOSS_THRESHOLD = 0.09;    // Auto-reset when loss exceeds this value (negative)
+  const PROFIT_THRESHOLD = 2.6;  // Auto-reset when profit exceeds this value
+  const LOSS_THRESHOLD = 4;    // Auto-reset when loss exceeds this value (negative)
 
   // Export to global object for Chrome extension compatibility
   const globalObj = typeof window !== 'undefined' ? window : (typeof self !== 'undefined' ? self : globalThis);
