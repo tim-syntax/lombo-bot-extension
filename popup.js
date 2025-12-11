@@ -14,6 +14,8 @@ const startBtn = document.getElementById('startBtn');
 const stopBtn = document.getElementById('stopBtn');
 const resetBtn = document.getElementById('resetBtn');
 const exportLogBtn = document.getElementById('exportLogBtn');
+const cycleResetBtn = document.getElementById('cycleResetBtn');
+const totalDeltaEl = document.getElementById('totalDelta');
 const chartCanvas = document.getElementById('balanceChart');
 const stepElements = document.querySelectorAll('.step');
 
@@ -128,12 +130,37 @@ function drawChart() {
   chartContext.fillText('Balance History', chartCanvas.width / 2, chartCanvas.height - 8);
 }
 
+// Update total delta display
+function updateTotalDelta() {
+  let totalDelta = 0;
+  if (balanceHistory.length > 0) {
+    // Total delta is the last balance point in history
+    totalDelta = balanceHistory[balanceHistory.length - 1].balance;
+  }
+  
+  const deltaSign = totalDelta >= 0 ? '+' : '';
+  totalDeltaEl.textContent = deltaSign + '$' + totalDelta.toFixed(2);
+  totalDeltaEl.className = 'stat-value ' + (totalDelta >= 0 ? 'win' : 'lose');
+}
+
 // Load balance history
 async function loadBalanceHistory() {
   const response = await sendToContent('getBalanceHistory');
   if (response && response.success) {
     balanceHistory = response.history || [];
     drawChart();
+    updateTotalDelta();
+  }
+}
+
+// Clear balance history (cycle reset)
+async function clearBalanceHistory() {
+  const response = await sendToContent('clearBalanceHistory');
+  if (response && response.success) {
+    balanceHistory = [];
+    drawChart();
+    updateTotalDelta();
+    addLog('Cycle reset - balance history cleared', 'info');
   }
 }
 
@@ -170,6 +197,9 @@ function updateUI(state) {
   const profitSign = profit >= 0 ? '+' : '';
   profitEl.textContent = profitSign + '$' + profit.toFixed(2);
   profitEl.className = 'stat-value ' + (profit >= 0 ? 'win' : 'lose');
+  
+  // Update total delta (from balance history)
+  updateTotalDelta();
   
   // Update step indicators
   stepElements.forEach((el, index) => {
@@ -340,6 +370,11 @@ exportLogBtn.addEventListener('click', async () => {
   await saveLogsToFile();
 });
 
+// Cycle reset button
+cycleResetBtn.addEventListener('click', async () => {
+  await clearBalanceHistory();
+});
+
 // Track previous running state to detect when bot stops
 let previousIsRunning = false;
 
@@ -356,6 +391,7 @@ chrome.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
   } else if (message.type === 'balanceUpdate') {
     balanceHistory = message.history || [];
     drawChart();
+    updateTotalDelta();
   }
   sendResponse({ received: true });
 });

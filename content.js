@@ -550,6 +550,12 @@
           sendResponse({ success: true, history });
         });
         return true; // Keep channel open for async
+      case 'clearBalanceHistory':
+        saveBalanceHistory([]).then(() => {
+          chrome.runtime.sendMessage({ type: 'balanceUpdate', history: [] });
+          sendResponse({ success: true });
+        });
+        return true; // Keep channel open for async
       case 'getState':
         sendResponse({ success: true, state });
         break;

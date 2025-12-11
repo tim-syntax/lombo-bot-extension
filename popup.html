@@ -35,12 +35,22 @@
     </div>
 
     <div class="chart-section">
+      <div class="chart-header">
+        <span class="label">Balance History</span>
+        <button id="cycleResetBtn" class="btn-cycle-reset">↺ Cycle Reset</button>
+      </div>
       <canvas id="balanceChart"></canvas>
     </div>
 
     <div class="profit-panel">
-      <span class="stat-label">Total Profit</span>
-      <span class="stat-value" id="profit">$0.00</span>
+      <div class="profit-item">
+        <span class="stat-label">Total Profit</span>
+        <span class="stat-value" id="profit">$0.00</span>
+      </div>
+      <div class="profit-item">
+        <span class="stat-label">Total Delta</span>
+        <span class="stat-value" id="totalDelta">$0.00</span>
+      </div>
     </div>
 
     <div class="bet-sequence">
